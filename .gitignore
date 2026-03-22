@@ -1,0 +1,47 @@
+# ── Node modules ─────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Environment files (NEVER commit these) ───────────────────
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+backend/.env
+
+# ── Angular build output ──────────────────────────────────────
+frontend/dist/
+frontend/.angular/
+frontend/.sass-cache/
+
+# ── TypeScript compiled output ────────────────────────────────
+backend/dist/
+*.js.map
+*.tsbuildinfo
+
+# ── Logs ──────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── OS files ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE files ─────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ── Docker ────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ── Uploads / temp files ─────────────────────────────────────
+uploads/
+tmp/
+temp/
