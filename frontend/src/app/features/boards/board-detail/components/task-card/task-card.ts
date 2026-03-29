@@ -1,9 +1,15 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { Task } from '../../../../../core/models/task.model';
 
 @Component({
   selector: 'app-task-card',
   standalone: true,
+  host: {
+    '[draggable]': 'true',
+    '[style.cursor]': '"grab"',
+    '[style.userSelect]': '"none"',
+    '[style.display]': '"block"',
+  },
   template: `
     <div class="task-card" (click)="clicked.emit(task)">
       <div class="task-header">
@@ -44,7 +50,7 @@ import { Task } from '../../../../../core/models/task.model';
       background: white;
       border-radius: 10px;
       padding: 14px;
-      cursor: pointer;
+      cursor: grab;
       transition: box-shadow 0.15s, transform 0.1s;
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
       border: 1px solid #f1f3f5;
@@ -98,6 +104,19 @@ import { Task } from '../../../../../core/models/task.model';
 export class TaskCardComponent {
   @Input({ required: true }) task!: Task;
   @Output() clicked = new EventEmitter<Task>();
+
+  @HostListener('dragstart', ['$event'])
+  onDragStart(event: DragEvent) {
+    event.dataTransfer!.setData('taskId', this.task.id);
+    event.dataTransfer!.setData('sourceColumnId', this.task.column_id);
+    event.dataTransfer!.effectAllowed = 'move';
+    (event.currentTarget as HTMLElement).style.opacity = '0.4';
+  }
+
+  @HostListener('dragend', ['$event'])
+  onDragEnd(event: DragEvent) {
+    (event.currentTarget as HTMLElement).style.opacity = '1';
+  }
 
   priorityLabel(p: string) {
     const map: Record<string, string> = { critical: '🔴 Critical', high: '🟠 High', medium: '🔵 Medium', low: '⚪ Low' };

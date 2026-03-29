@@ -21,19 +21,16 @@ import { TaskCardComponent } from '../task-card/task-card';
       </div>
 
       <div class="task-list"
+        [class.drag-over]="isDragOver"
+        (dragenter)="onDragEnter($event)"
+        (dragleave)="onDragLeave($event)"
         (dragover)="onDragOver($event)"
         (drop)="onDrop($event)">
         @for (task of tasks; track task.id) {
-          <div draggable="true"
-            (dragstart)="onDragStart($event, task)"
-            (dragend)="onDragEnd()">
-            <app-task-card [task]="task" (clicked)="taskClicked.emit($event)" />
-          </div>
+          <app-task-card [task]="task" (clicked)="taskClicked.emit($event)" />
         }
         @if (tasks.length === 0) {
-          <div class="empty-column"
-            (dragover)="onDragOver($event)"
-            (drop)="onDrop($event)">
+          <div class="empty-drop-hint">
             <span>Drop tasks here</span>
           </div>
         }
@@ -94,7 +91,7 @@ import { TaskCardComponent } from '../task-card/task-card';
       min-height: 60px;
     }
     .task-list.drag-over { background: rgba(99,102,241,0.05); border-radius: 8px; }
-    .empty-column {
+    .empty-drop-hint {
       min-height: 60px;
       border: 2px dashed #e5e7eb;
       border-radius: 10px;
@@ -103,6 +100,7 @@ import { TaskCardComponent } from '../task-card/task-card';
       justify-content: center;
       color: #d1d5db;
       font-size: 13px;
+      pointer-events: none;
     }
   `],
 })
@@ -113,17 +111,20 @@ export class KanbanColumnComponent {
   @Output() taskClicked = new EventEmitter<Task>();
   @Output() taskDropped = new EventEmitter<{ task: Task; columnId: string }>();
 
-  private draggingTask: Task | null = null;
+  isDragOver = false;
+  private dragCounter = 0;
 
-  onDragStart(event: DragEvent, task: Task) {
-    this.draggingTask = task;
-    event.dataTransfer?.setData('taskId', task.id);
-    event.dataTransfer?.setData('sourceColumnId', task.column_id);
-    (event.currentTarget as HTMLElement).style.opacity = '0.5';
+  onDragEnter(event: DragEvent) {
+    event.preventDefault();
+    this.dragCounter++;
+    this.isDragOver = true;
   }
 
-  onDragEnd() {
-    this.draggingTask = null;
+  onDragLeave(_event: DragEvent) {
+    this.dragCounter--;
+    if (this.dragCounter === 0) {
+      this.isDragOver = false;
+    }
   }
 
   onDragOver(event: DragEvent) {
@@ -133,6 +134,8 @@ export class KanbanColumnComponent {
 
   onDrop(event: DragEvent) {
     event.preventDefault();
+    this.dragCounter = 0;
+    this.isDragOver = false;
     const taskId = event.dataTransfer?.getData('taskId');
     const sourceColumnId = event.dataTransfer?.getData('sourceColumnId');
     if (taskId && sourceColumnId !== this.column.id) {

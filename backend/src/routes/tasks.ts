@@ -121,7 +121,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
         title = COALESCE($1, title),
         description = COALESCE($2, description),
         column_id = COALESCE($3, column_id),
-        assignee_id = CASE WHEN $4 IS NULL THEN assignee_id WHEN $4 = '' THEN NULL ELSE $4::uuid END,
+        assignee_id = CASE WHEN $4::text IS NULL THEN assignee_id WHEN $4::text = '' THEN NULL ELSE $4::uuid END,
         priority = COALESCE($5, priority),
         due_date = COALESCE($6::timestamptz, due_date),
         labels = COALESCE($7, labels),

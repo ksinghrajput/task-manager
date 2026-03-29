@@ -66,10 +66,16 @@ router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
   }
 });
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // GET /api/boards/:id
 router.get('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+    if (!UUID_RE.test(id as string)) {
+      res.status(400).json({ message: 'Invalid board ID' });
+      return;
+    }
     const access = await query(
       'SELECT role FROM board_members WHERE board_id = $1 AND user_id = $2',
       [id, req.user!.userId]
@@ -123,6 +129,7 @@ router.get('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
 router.patch('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+    if (!UUID_RE.test(id)) { res.status(400).json({ message: 'Invalid board ID' }); return; }
     const { name, description, color, icon } = req.body;
     const access = await query(
       'SELECT role FROM board_members WHERE board_id = $1 AND user_id = $2',
@@ -152,6 +159,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
 router.delete('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+    if (!UUID_RE.test(id)) { res.status(400).json({ message: 'Invalid board ID' }); return; }
     const board = await query('SELECT owner_id FROM boards WHERE id = $1', [id]);
     if (board.rows.length === 0 || board.rows[0].owner_id !== req.user!.userId) {
       res.status(403).json({ message: 'Only the board owner can delete it' });

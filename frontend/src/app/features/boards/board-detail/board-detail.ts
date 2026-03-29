@@ -486,12 +486,17 @@ export class BoardDetailComponent implements OnInit {
   }
 
   moveTask(event: { task: Task; columnId: string }) {
+    const prev = this.tasks();
+    this.tasks.update(tasks =>
+      tasks.map(t => t.id === event.task.id ? { ...t, column_id: event.columnId } : t)
+    );
     this.taskService.updateTask(event.task.id, { column_id: event.columnId }).subscribe({
       next: (updated) => {
         this.tasks.update(tasks =>
-          tasks.map(t => t.id === updated.id ? { ...t, column_id: updated.column_id } : t)
+          tasks.map(t => t.id === updated.id ? { ...t, ...updated } : t)
         );
       },
+      error: () => this.tasks.set(prev),
     });
   }
 

@@ -43,6 +43,11 @@ export const routes: Routes = [
           import('./features/boards/board-list/board-list').then(m => m.BoardListComponent),
       },
       {
+        path: 'boards/new',
+        redirectTo: 'boards',
+        pathMatch: 'full',
+      },
+      {
         path: 'boards/:id',
         loadComponent: () =>
           import('./features/boards/board-detail/board-detail').then(m => m.BoardDetailComponent),
