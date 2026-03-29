@@ -123,8 +123,8 @@ router.patch('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
         column_id = COALESCE($3, column_id),
         assignee_id = CASE WHEN $4::text IS NULL THEN assignee_id WHEN $4::text = '' THEN NULL ELSE $4::uuid END,
         priority = COALESCE($5, priority),
-        due_date = COALESCE($6::timestamptz, due_date),
-        labels = COALESCE($7, labels),
+        due_date = CASE WHEN $6::text IS NULL THEN due_date ELSE $6::timestamptz END,
+        labels = COALESCE($7::text[], labels),
         position = $8
        WHERE id = $9 RETURNING *`,
       [
@@ -133,7 +133,7 @@ router.patch('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
         column_id || null,
         assignee_id !== undefined ? (assignee_id || '') : null,
         priority || null,
-        due_date || null,
+        due_date !== undefined ? (due_date || null) : null,
         labels || null,
         newPosition,
         id,
